@@ -73,7 +73,7 @@ const ProfileInfo = () => {
               href="/dashboard"
               className="text-xs text-default-600 hover:text-primary"
             >
-              @Expert
+              @Customer
             </Link>
           </div>
         </DropdownMenuLabel>
@@ -83,11 +83,6 @@ const ProfileInfo = () => {
               name: "profile",
               icon: "heroicons:user",
               href: "/profile",
-            },
-            {
-              name: "Billing",
-              icon: "heroicons:megaphone",
-              href: "/dashboard",
             },
           ].map((item, index) => (
             <Link
@@ -112,12 +107,6 @@ const ProfileInfo = () => {
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
                 {[
-                  {
-                    name: "portal",
-                  },
-                  {
-                    name: "slack",
-                  },
                   {
                     name: "whatsapp",
                   },

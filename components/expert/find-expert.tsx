@@ -224,7 +224,7 @@ const FindExpert = () => {
               handleFilterChange("min_consultation_charge", e.target.value)
             }
           >
-            <option value="">Min Consultation Charge</option>
+            <option value="">Price</option>
             <option value="500">₹500</option>
             <option value="1000">₹1,000</option>
             <option value="1500">₹1,500</option>
@@ -234,7 +234,7 @@ const FindExpert = () => {
           </select>
 
           <select
-            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px]"
+            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px] text-sm md:text-base"
             value={filters.gender}
             onChange={(e) => handleFilterChange("gender", e.target.value)}
           >
@@ -245,7 +245,7 @@ const FindExpert = () => {
           </select>
 
           <select
-            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px]"
+            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px] text-sm md:text-base"
             value={filters.consultation_language}
             onChange={(e) =>
               handleFilterChange("consultation_language", e.target.value)

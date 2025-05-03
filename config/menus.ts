@@ -1,4 +1,11 @@
-import { DashBoard, Settings } from "@/components/svg";
+import { DashBoard, Settings, User } from "@/components/svg";
+import {
+  LayoutDashboard,
+  CalendarClock,
+  BookOpen,
+  Video,
+  User2,
+} from "lucide-react";
 
 export interface MenuItemProps {
   title: string;
@@ -15,46 +22,56 @@ export const menusConfig = {
   mainNav: [
     {
       title: "Dashboard",
-      icon: DashBoard,
+      icon: LayoutDashboard,
       href: "/dashboard",
     },
     {
       title: "Find Expert",
-      icon: Settings,
+      icon: User,
       href: "/find-expert",
     },
     {
       title: "Bookings",
-      icon: Settings,
+      icon: BookOpen,
       href: "/bookings",
     },
     {
       title: "Meetings",
-      icon: Settings,
+      icon: Video,
       href: "/meetings",
+    },
+    {
+      title: "Profile",
+      icon: User2,
+      href: "/profile",
     },
   ],
   sidebarNav: {
     modern: [
       {
         title: "Dashboard",
-        icon: DashBoard,
+        icon: LayoutDashboard,
         href: "/dashboard",
       },
       {
         title: "Find Expert",
-        icon: Settings,
+        icon: User,
         href: "/find-expert",
       },
       {
         title: "Bookings",
-        icon: Settings,
+        icon: BookOpen,
         href: "/bookings",
       },
       {
         title: "Meetings",
-        icon: Settings,
+        icon: Video,
         href: "/meetings",
+      },
+      {
+        title: "Profile",
+        icon: User2,
+        href: "/profile",
       },
     ],
     classic: [
@@ -64,23 +81,28 @@ export const menusConfig = {
       },
       {
         title: "Dashboard",
-        icon: DashBoard,
+        icon: LayoutDashboard,
         href: "/dashboard",
       },
       {
         title: "Find Expert",
-        icon: Settings,
+        icon: User,
         href: "/find-expert",
       },
       {
         title: "Bookings",
-        icon: Settings,
+        icon: BookOpen,
         href: "/bookings",
       },
       {
         title: "Meetings",
-        icon: Settings,
+        icon: Video,
         href: "/meetings",
+      },
+      {
+        title: "Profile",
+        icon: User2,
+        href: "/profile",
       },
     ],
   },
