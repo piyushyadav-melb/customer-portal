@@ -187,7 +187,7 @@ const FindExpert = () => {
           </select>
 
           <select
-            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px]"
+            className="w-full p-2.5 bg-[#0f172a] border border-[#1e293b] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 h-[42px]text-sm md:text-base "
             value={filters.category}
             onChange={(e) => handleFilterChange("category", e.target.value)}
           >
