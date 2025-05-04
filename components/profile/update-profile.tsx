@@ -18,7 +18,7 @@ import {
 } from "@/service/profile.service";
 import { countries, states, cities } from "@/utils/locations";
 import Image from "next/image";
-
+import FavIcon from "@/public/images/all-img/fav-icon.png";
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -149,7 +149,7 @@ export function UpdateProfile() {
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary">
                 <Image
-                  src={profilePicture || "/default-avatar.png"}
+                  src={profilePicture || FavIcon}
                   alt="Profile"
                   width={96}
                   height={96}

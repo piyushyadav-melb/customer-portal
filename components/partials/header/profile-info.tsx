@@ -21,7 +21,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import avatar5 from "@/public/images/avatar/avatar-5.jpg";
+import FavIcon from "@/public/images/all-img/fav-icon.png";
 
 const ProfileInfo = () => {
   const navigation = useRouter();
@@ -48,7 +48,7 @@ const ProfileInfo = () => {
       <DropdownMenuTrigger asChild className=" cursor-pointer">
         <div className=" flex items-center  ">
           <Image
-            src={profile?.profile_picture_url || avatar5}
+            src={profile?.profile_picture_url || FavIcon}
             alt=""
             width={36}
             height={36}
@@ -59,7 +59,7 @@ const ProfileInfo = () => {
       <DropdownMenuContent className="w-56 p-0" align="end">
         <DropdownMenuLabel className="flex gap-2 items-center mb-1 p-3">
           <Image
-            src={profile?.profile_picture_url || avatar5}
+            src={profile?.profile_picture_url || FavIcon}
             alt=""
             width={36}
             height={36}
