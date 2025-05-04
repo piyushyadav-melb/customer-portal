@@ -97,12 +97,12 @@ export const BookAppointment = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="sm:max-w-[800px] p-0 gap-0 bg-[#0f172a] text-white"
+        className="sm:max-w-[1000px] p-0 gap-0 bg-[#0f172a] text-white"
         hiddenCloseIcon={true}
       >
-        <div className="flex flex-col md:flex-row h-[500px]">
+        <div className="flex flex-col md:flex-row md:h-[500px] overflow-y-auto max-h-[90vh]">
           {/* Left Panel - Calendar */}
-          <div className="w-full md:w-[60%] p-4 border-r border-gray-800">
+          <div className="w-full md:w-[65%] p-4 border-r border-gray-800">
             <DialogHeader className="mb-4">
               <DialogTitle className="text-xl font-semibold text-white">
                 Book Appointment with {expertName}
@@ -162,13 +162,13 @@ export const BookAppointment = ({
           </div>
 
           {/* Right Panel - Time Slots */}
-          <div className="w-full md:w-[40%] p-4 bg-[#1e293b] flex flex-col">
+          <div className="w-full md:w-[35%] p-4 bg-[#1e293b] flex flex-col">
             <h3 className="text-lg font-medium text-white mb-3">
               {selectedDate
                 ? format(selectedDate, "MMMM d, yyyy")
                 : "Select a Date"}
             </h3>
-            <div className="flex-grow">
+            <div className="flex-grow overflow-y-auto max-h-[200px] md:max-h-[350px]">
               {selectedDate ? (
                 getDaySchedule(selectedDate)?.slots.length ? (
                   <div className="grid grid-cols-1 gap-2">
@@ -177,7 +177,7 @@ export const BookAppointment = ({
                         key={index}
                         variant="outline"
                         className={cn(
-                          "w-full py-6 text-lg border-gray-700 hover:bg-purple-900/50 hover:text-white transition-all",
+                          "w-full py-6 text-md border-gray-700 hover:bg-purple-900/50 hover:text-white transition-all",
                           selectedSlot === slot.start &&
                             "bg-purple-900 border-purple-700 text-white"
                         )}
