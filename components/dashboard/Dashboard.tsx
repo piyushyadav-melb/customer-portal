@@ -43,53 +43,53 @@ export function Dashboard() {
       }
     };
 
-    fetchStats();
+    // fetchStats();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  //     </div>
+  //   );
+  // }
 
-  if (!stats) {
-    return (
-      <div className="text-center text-gray-500">No statistics available</div>
-    );
-  }
+  // if (!stats) {
+  //   return (
+  //     <div className="text-center text-gray-500">No statistics available</div>
+  //   );
+  // }
 
-  const cards = [
-    {
-      title: "Total Bookings",
-      value: stats.bookings.total,
-      icon: Calendar,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-    {
-      title: "Completed Bookings",
-      value: stats.bookings.completed,
-      icon: Users,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
-    {
-      title: "Total Meetings",
-      value: stats.meetings.total,
-      icon: Video,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
-    },
-    {
-      title: "Ended Meetings",
-      value: stats.meetings.ended,
-      icon: Video,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-    },
-  ];
+  // const cards = [
+  //   {
+  //     title: "Total Bookings",
+  //     value: stats.bookings.total,
+  //     icon: Calendar,
+  //     color: "text-blue-600",
+  //     bgColor: "bg-blue-100",
+  //   },
+  //   {
+  //     title: "Completed Bookings",
+  //     value: stats.bookings.completed,
+  //     icon: Users,
+  //     color: "text-green-600",
+  //     bgColor: "bg-green-100",
+  //   },
+  //   {
+  //     title: "Total Meetings",
+  //     value: stats.meetings.total,
+  //     icon: Video,
+  //     color: "text-purple-600",
+  //     bgColor: "bg-purple-100",
+  //   },
+  //   {
+  //     title: "Ended Meetings",
+  //     value: stats.meetings.ended,
+  //     icon: Video,
+  //     color: "text-orange-600",
+  //     bgColor: "bg-orange-100",
+  //   },
+  // ];
 
   return (
     <div className="container mx-auto p-6">
@@ -119,7 +119,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {cards.map((card, index) => (
           <Card key={index}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -135,9 +135,9 @@ export function Dashboard() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </div> */}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <Card>
           <CardHeader>
             <CardTitle>Booking Statistics</CardTitle>
@@ -181,7 +181,7 @@ export function Dashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }
