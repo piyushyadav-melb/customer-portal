@@ -81,12 +81,11 @@ const Login = () => {
           priority={true}
         />
         <div className="flex-1  text-2xl">
-          <span className="text-primary font-extrabold">Customer</span>{" "}
-          <span className="text-gray-700 font-light">Portal</span>
+          <h1 className="text-black font-bold">MINDNAMO</h1>
         </div>
       </Link>
       <div className="2xl:mt-8 mt-6 2xl:text-3xl text-2xl font-bold text-default-900">
-        Hey, Hello 👋
+        BOOK APPOINTMENT
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-5 2xl:mt-7">
         <div>
@@ -151,7 +150,7 @@ const Login = () => {
         )}
 
         <div className="mt-5  mb-8 flex flex-wrap gap-2">
-          <Link href="/forgot" className="flex-none text-sm text-primary">
+          <Link href="/forgot" className="flex-none text-sm ">
             Forget Password?
           </Link>
         </div>
@@ -166,7 +165,7 @@ const Login = () => {
       </form>
       <div className="mt-5 text-center text-base text-default-600">
         Don't have an account?{" "}
-        <Link href="/register" className="text-primary">
+        <Link href="/register" className="">
           Register now
         </Link>
       </div>

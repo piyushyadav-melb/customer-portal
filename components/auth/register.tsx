@@ -114,8 +114,7 @@ const Register = () => {
           priority={true}
         />
         <div className="flex-1 text-2xl">
-          <span className="text-primary font-extrabold">Mind</span>{" "}
-          <span className="text-gray-700 font-light">Namo</span>
+          <h1 className="text-black font-bold">MINDNAMO</h1>
         </div>
       </Link>
       <div className="2xl:mt-8 mt-6 2xl:text-3xl text-2xl font-bold text-default-900">
@@ -174,32 +173,32 @@ const Register = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label
-              htmlFor="email"
-              className="mb-2 font-medium text-default-600"
-            >
-              Email
-            </Label>
-            <Input
-              disabled={isPending}
-              {...register("email")}
-              type="email"
-              id="email"
-              className={cn("", {
-                "border-destructive": errors.email,
-              })}
-              size={!isDesktop2xl ? "xl" : "lg"}
-            />
-            {errors.email && (
-              <div className="text-destructive mt-2">
-                {errors.email.message}
-              </div>
-            )}
-          </div>
+            <div>
+              <Label
+                htmlFor="email"
+                className="mb-2 font-medium text-default-600"
+              >
+                Email
+              </Label>
+              <Input
+                disabled={isPending}
+                {...register("email")}
+                type="email"
+                id="email"
+                className={cn("", {
+                  "border-destructive": errors.email,
+                })}
+                size={!isDesktop2xl ? "xl" : "lg"}
+              />
+              {errors.email && (
+                <div className="text-destructive mt-2">
+                  {errors.email.message}
+                </div>
+              )}
+            </div>
 
-          <div>
-            <Label
+            <div>
+              <Label
                 htmlFor="mobile_number"
                 className="mb-2 font-medium text-default-600"
               >
@@ -377,85 +376,85 @@ const Register = () => {
             <div>
               <Label
                 htmlFor="password"
-              className="mb-2 font-medium text-default-600"
-            >
-              Password
-            </Label>
-            <div className="relative">
-              <Input
-                disabled={isPending}
-                {...register("password")}
-                type={passwordType}
-                id="password"
-                className={cn("peer", {
-                  "border-destructive": errors.password,
-                })}
-                size={!isDesktop2xl ? "xl" : "lg"}
-              />
-              <div
-                className="absolute top-1/2 -translate-y-1/2 ltr:right-4 rtl:left-4 cursor-pointer"
-                onClick={togglePasswordType}
+                className="mb-2 font-medium text-default-600"
               >
-                {passwordType === "password" ? (
-                  <Icon
-                    icon="heroicons:eye"
-                    className="w-5 h-5 text-default-400"
-                  />
-                ) : (
-                  <Icon
-                    icon="heroicons:eye-slash"
-                    className="w-5 h-5 text-default-400"
-                  />
-                )}
+                Password
+              </Label>
+              <div className="relative">
+                <Input
+                  disabled={isPending}
+                  {...register("password")}
+                  type={passwordType}
+                  id="password"
+                  className={cn("peer", {
+                    "border-destructive": errors.password,
+                  })}
+                  size={!isDesktop2xl ? "xl" : "lg"}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 ltr:right-4 rtl:left-4 cursor-pointer"
+                  onClick={togglePasswordType}
+                >
+                  {passwordType === "password" ? (
+                    <Icon
+                      icon="heroicons:eye"
+                      className="w-5 h-5 text-default-400"
+                    />
+                  ) : (
+                    <Icon
+                      icon="heroicons:eye-slash"
+                      className="w-5 h-5 text-default-400"
+                    />
+                  )}
+                </div>
               </div>
+              {errors.password && (
+                <div className="text-destructive mt-2">
+                  {errors.password.message}
+                </div>
+              )}
             </div>
-            {errors.password && (
-              <div className="text-destructive mt-2">
-                {errors.password.message}
-              </div>
-            )}
-          </div>
 
-          <div>
-            <Label
-              htmlFor="confirmPassword"
-              className="mb-2 font-medium text-default-600"
-            >
-              Confirm Password
-            </Label>
-            <div className="relative">
-              <Input
-                disabled={isPending}
-                {...register("confirmPassword")}
-                type={confirmPasswordType}
-                id="confirmPassword"
-                className={cn("peer", {
-                  "border-destructive": errors.confirmPassword,
-                })}
-                size={!isDesktop2xl ? "xl" : "lg"}
-              />
-              <div
-                className="absolute top-1/2 -translate-y-1/2 ltr:right-4 rtl:left-4 cursor-pointer"
-                onClick={toggleConfirmPasswordType}
+            <div>
+              <Label
+                htmlFor="confirmPassword"
+                className="mb-2 font-medium text-default-600"
               >
-                {confirmPasswordType === "password" ? (
-                  <Icon
-                    icon="heroicons:eye"
-                    className="w-5 h-5 text-default-400"
-                  />
-                ) : (
-                  <Icon
-                    icon="heroicons:eye-slash"
-                    className="w-5 h-5 text-default-400"
-                  />
-                )}
+                Confirm Password
+              </Label>
+              <div className="relative">
+                <Input
+                  disabled={isPending}
+                  {...register("confirmPassword")}
+                  type={confirmPasswordType}
+                  id="confirmPassword"
+                  className={cn("peer", {
+                    "border-destructive": errors.confirmPassword,
+                  })}
+                  size={!isDesktop2xl ? "xl" : "lg"}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 ltr:right-4 rtl:left-4 cursor-pointer"
+                  onClick={toggleConfirmPasswordType}
+                >
+                  {confirmPasswordType === "password" ? (
+                    <Icon
+                      icon="heroicons:eye"
+                      className="w-5 h-5 text-default-400"
+                    />
+                  ) : (
+                    <Icon
+                      icon="heroicons:eye-slash"
+                      className="w-5 h-5 text-default-400"
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-            {errors.confirmPassword && (
-              <div className="text-destructive mt-2">
-                {errors.confirmPassword.message}
-              </div>
-            )}
+              {errors.confirmPassword && (
+                <div className="text-destructive mt-2">
+                  {errors.confirmPassword.message}
+                </div>
+              )}
             </div>
           </div>
         </div>

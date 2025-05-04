@@ -138,7 +138,7 @@ const FindExpert = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-primary">Find an Expert</h1>
+      <h1 className="text-3xl font-bold mb-8 text-primary">Find your expert</h1>
 
       {/* Filters Section */}
       <div className="space-y-4 mb-8">
@@ -191,7 +191,7 @@ const FindExpert = () => {
             value={filters.category}
             onChange={(e) => handleFilterChange("category", e.target.value)}
           >
-            <option value="">Field</option>
+            <option value="">Problem</option>
             {categories.map((category) => (
               <option key={category} value={category}>
                 {category}
