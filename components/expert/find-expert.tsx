@@ -191,7 +191,7 @@ const FindExpert = () => {
             value={filters.category}
             onChange={(e) => handleFilterChange("category", e.target.value)}
           >
-            <option value="">Category</option>
+            <option value="">Field</option>
             {categories.map((category) => (
               <option key={category} value={category}>
                 {category}
