@@ -51,3 +51,48 @@ export const doSlotsOverlap = (slot1: any, slot2: any) => {
 export const isValidTimeSlot = (slot: any) => {
   return slot.start && slot.end;
 };
+
+
+// Shows date if more than 1 day old
+export const getTimeFromTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffInMs = now.getTime() - date.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const time24h = `${hours}:${minutes}`;
+  const timeFormatted = to12HourFormat(time24h);
+
+  // If more than 1 day old, include the date
+  if (diffInDays >= 1) {
+    const dateFormatted = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+    return `${dateFormatted} at ${timeFormatted}`;
+  }
+
+  // If today, return only time
+  return timeFormatted;
+};
+
+
+// Helper function to determine file type from MIME type
+export const getFileTypeFromMimeType = (mimeType: string): 'image' | 'video' | 'audio' | 'document' => {
+  if (mimeType.startsWith('image/')) return 'image';
+  if (mimeType.startsWith('video/')) return 'video';
+  if (mimeType.startsWith('audio/')) return 'audio';
+  return 'document';
+};
+
+// Helper function to format file size
+export const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};

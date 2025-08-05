@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchExpertDetails } from "@/redux/thunk/expert.thunk";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Play, X, FileText, Star } from "lucide-react";
@@ -18,6 +18,7 @@ import { BookAppointment } from "./book-appointment";
 export const ExpertDetails = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { expertDetails, loading, error } = useAppSelector(
     (state) => state.expert
   );
@@ -38,6 +39,12 @@ export const ExpertDetails = () => {
   const handleBookingClose = async () => {
     setIsBookingOpen(false);
     await closePopup();
+  };
+
+  const handleMessageClick = () => {
+    if (expertDetails?.id) {
+      router.push(`/chat?expertId=${expertDetails.id}`);
+    }
   };
 
   if (loading) {
@@ -91,7 +98,7 @@ export const ExpertDetails = () => {
           <Button
             size="lg"
             className="w-full"
-            onClick={() => setIsBookingOpen(true)}
+            onClick={handleMessageClick}
           >
             Message
           </Button>

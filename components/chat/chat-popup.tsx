@@ -28,6 +28,7 @@ interface ChatPopupProps {
     profile_picture_url: string;
   };
 }
+const CURRENT_USER_ID = "CURRENT_USER_ID"; // Replace with actual user ID from auth
 
 export const ChatPopup = ({ isOpen, onClose, expert }: ChatPopupProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -77,6 +78,13 @@ export const ChatPopup = ({ isOpen, onClose, expert }: ChatPopupProps) => {
     }
   }, [socket, expert.id, roomId]);
 
+  // Join the chat room when socket or roomId changes
+  useEffect(() => {
+    if (socket && roomId) {
+      socket.emit("joinChat", { chatRoomId: roomId, userId: CURRENT_USER_ID });
+    }
+  }, [socket, roomId]);
+
   const initializeChat = async () => {
     try {
       // setIsLoading(true);
@@ -85,8 +93,8 @@ export const ChatPopup = ({ isOpen, onClose, expert }: ChatPopupProps) => {
 
       const response = await getChatHistory(room.id);
       console.log(response);
-      if (response?.data) {
-        setMessages(response.data);
+      if (response?.length > 0) {
+        setMessages(response);
       }
 
       if (socket) {
@@ -126,7 +134,7 @@ export const ChatPopup = ({ isOpen, onClose, expert }: ChatPopupProps) => {
         });
 
         if (message) {
-          setMessages((prev) => [...prev, message]);
+          // setMessages((prev) => [...prev, message]);
           setNewMessage("");
           scrollToBottom();
         }
@@ -181,18 +189,16 @@ export const ChatPopup = ({ isOpen, onClose, expert }: ChatPopupProps) => {
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${
-                  message.senderType === "EXPERT"
-                    ? "justify-start"
-                    : "justify-end"
-                }`}
+                className={`flex ${message.senderType === "EXPERT"
+                  ? "justify-start"
+                  : "justify-end"
+                  }`}
               >
                 <div
-                  className={`max-w-[70%] rounded-lg p-3 ${
-                    message.senderType === "EXPERT"
-                      ? "bg-gray-100"
-                      : "bg-primary text-white"
-                  }`}
+                  className={`max-w-[70%] rounded-lg p-3 ${message.senderType === "EXPERT"
+                    ? "bg-gray-100"
+                    : "bg-primary text-white"
+                    }`}
                 >
                   <p>{message.content}</p>
                   <p className="text-xs mt-1 opacity-70">

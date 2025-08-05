@@ -16,6 +16,7 @@ import { useMounted } from "@/hooks/use-mounted";
 import { useAppSelector } from "@/hooks";
 import { fetchProfile } from "@/service/profile.service";
 import toast from "react-hot-toast";
+import { useSocket } from "@/hooks/use-socket";
 interface IDashboardLayoutProps {
   children: ReactNode;
 }
@@ -76,7 +77,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery("(min-width: 768px)");
   const mounted = useMounted();
   const navigation = useRouter();
-
+  const socket = useSocket();
   if (!mounted) {
     return <LayoutLoader />;
   }

@@ -1,3 +1,4 @@
+import { getCookie } from "@/utils/cookie";
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 
@@ -7,10 +8,10 @@ export const useSocket = () => {
   useEffect(() => {
     // Initialize socket connection
     if (!socketRef.current) {
-      const token = localStorage.getItem("token"); // Get your JWT token
+      const token = getCookie("token"); // Get your JWT token
 
       socketRef.current = io(
-        `${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000"}`, // Add /chat namespace
+        `${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:7000/chat"}`, // Add /chat namespace
         {
           withCredentials: true,
           autoConnect: true,

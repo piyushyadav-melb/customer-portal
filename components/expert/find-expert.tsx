@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import { ChatPopup } from "@/components/chat/chat-popup";
+
 
 const FindExpert = () => {
   const dispatch = useAppDispatch();
@@ -44,7 +44,6 @@ const FindExpert = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedBookingExpert, setSelectedBookingExpert] = useState<any>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const debouncedFetchExperts = useCallback(
     debounce((params: any) => {
@@ -132,8 +131,7 @@ const FindExpert = () => {
   };
 
   const handleMessageClick = (expert: any) => {
-    setSelectedExpert(expert);
-    setIsChatOpen(true);
+    router.push(`/chat?expertId=${expert.id}`);
   };
 
   return (
@@ -405,17 +403,7 @@ const FindExpert = () => {
         />
       )}
 
-      {selectedExpert && (
-        <ChatPopup
-          isOpen={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-          expert={{
-            id: selectedExpert.id,
-            name: selectedExpert.name,
-            profile_picture_url: selectedExpert.profile_picture_url,
-          }}
-        />
-      )}
+
     </div>
   );
 };

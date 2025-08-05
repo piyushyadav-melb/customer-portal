@@ -5,6 +5,7 @@ import {
   BookOpen,
   Video,
   User2,
+  MessageCircle,
 } from "lucide-react";
 
 export interface MenuItemProps {
@@ -41,6 +42,11 @@ export const menusConfig = {
       href: "/meetings",
     },
     {
+      title: "Chat",
+      icon: MessageCircle,
+      href: "/chat",
+    },
+    {
       title: "Profile",
       icon: User2,
       href: "/profile",
@@ -67,6 +73,11 @@ export const menusConfig = {
         title: "Meetings",
         icon: Video,
         href: "/meetings",
+      },
+      {
+        title: "Chat",
+        icon: MessageCircle,
+        href: "/chat",
       },
       {
         title: "Profile",
@@ -98,6 +109,11 @@ export const menusConfig = {
         title: "Meetings",
         icon: Video,
         href: "/meetings",
+      },
+      {
+        title: "Chat",
+        icon: MessageCircle,
+        href: "/chat",
       },
       {
         title: "Profile",
