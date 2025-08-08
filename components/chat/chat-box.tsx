@@ -3,6 +3,8 @@ import { Send, Search, X, ChevronLeft, ChevronRight, Paperclip } from 'lucide-re
 import { useSocket } from "@/hooks/use-socket";
 import { getChatHistory, sendMessage, uploadFile, type Message, type FileUploadResponse } from "@/service/chat.service";
 import { getTimeFromTimestamp, to12HourFormat, getFileTypeFromMimeType, formatFileSize } from "@/utils/helper";
+import { fetchProfile } from "@/service/profile.service";
+import { toast } from "sonner";
 
 const CURRENT_USER_ID = "CURRENT_USER_ID"; // Replace with actual expert user ID from auth
 
@@ -23,9 +25,26 @@ const ChatBox = ({ roomId, expert }) => {
     const [uploadedFileData, setUploadedFileData] = useState<FileUploadResponse | null>(null);
     const [isUploadingFile, setIsUploadingFile] = useState(false);
     const [uploadError, setUploadError] = useState("");
+    const [profilePicture, setProfilePicture] = useState("");
+    const [profile, setProfile] = useState<any>(null);
     const attachmentDropdownRef = useRef<HTMLDivElement>(null);
 
     const socket = useSocket();
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            try {
+                const response = await fetchProfile();
+                if (response.status && response.data) {
+                    setProfilePicture(response.data.profile_picture_url);
+                    setProfile(response.data);
+                }
+            } catch (error: any) {
+            }
+        };
+
+        loadProfile();
+    }, []);
 
     const getInitials = (name) => {
         if (!name) return "U";
@@ -44,8 +63,12 @@ const ChatBox = ({ roomId, expert }) => {
     // Initialize chat and join room
     useEffect(() => {
         const initializeChat = async () => {
-            if (!roomId || !expert) return;
+            if (!roomId || !expert) {
+                setIsLoading(false);
+                return;
+            }
             try {
+                setIsLoading(true);
                 const response = await getChatHistory(roomId);
                 if (response?.length > 0) setMessages(response);
 
@@ -56,7 +79,8 @@ const ChatBox = ({ roomId, expert }) => {
                     });
                 }
             } catch (error) {
-                // Handle error (optional)
+                setIsLoading(false);
+                toast.error("Failed to load chat history");
             } finally {
                 setIsLoading(false);
             }
@@ -339,7 +363,6 @@ const ChatBox = ({ roomId, expert }) => {
                             <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
                             <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
                             <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-200"></div>
-                            <span className="ml-2 text-gray-600 font-medium">Loading...</span>
                         </div>
                     </div>
                 ) : (
@@ -434,12 +457,19 @@ const ChatBox = ({ roomId, expert }) => {
                                     </span>
                                 </div>
 
-                                {/* Profile Picture on Right Side for sent messages */}
-                                {message.senderType === "CUSTOMER" && (
+                                {message?.senderType === "CUSTOMER" && (
                                     <div className="relative w-8 h-8 mt-1">
-                                        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
-                                            E
-                                        </div>
+                                        {hasValidProfilePicture(profilePicture) ? (
+                                            <img
+                                                src={profilePicture}
+                                                alt="Customer"
+                                                className="rounded-full w-8 h-8 object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                                                {getInitials(profile?.name || "C")}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>

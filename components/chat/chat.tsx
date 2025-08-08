@@ -12,6 +12,8 @@ const Chat: React.FC = () => {
     const [selectedRoom, setSelectedRoom] = useState(null);
     const [messages, setMessages] = useState([]);
     const [expert, setExpert] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const socket = useSocket();
     const searchParams = useSearchParams();
 
@@ -31,6 +33,7 @@ const Chat: React.FC = () => {
         // Fetch experts and chat rooms on mount
         const fetchData = async () => {
             try {
+                setIsLoading(true);
                 const expertsData = await getChattedExperts();
                 setExperts(expertsData);
 
@@ -61,6 +64,9 @@ const Chat: React.FC = () => {
                 }
             } catch (error) {
                 console.error('Error fetching experts:', error);
+                setIsLoading(false);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -106,32 +112,41 @@ const Chat: React.FC = () => {
     }, [socket, expert?.id]);
 
     return (
-        <div className="mx-auto sm:px-5 sm:mt-8  px-4 pb-5 bg-gray-100 min-h-[calc(90vh-100px)]">
-            <div className="lg:flex gap-4 lg:gap-0">
-                {/* Chat Sidebar */}
-                <div className="w-full md:flex-1 order-2 md:order-1">
-                    <ChatSidebar
-                        experts={experts}
-                        selectedRoom={selectedRoom}
-                        onSelectExpert={handleSelectExpert}
-                    />
-                </div>
-
-                {/* Chat Box */}
-                <div className="w-full md:w-96 lg:w-[500px] xl:w-[600px] flex-shrink-0 order-1 md:order-2 min-h-0">
-                    <ChatBox
-                        roomId={selectedRoom?.id}
-                        expert={expert}
-                    />
-                </div>
-
-                {/* Customer Profile */}
-                <div className="w-full md:flex-1 lg:block order-3">
-                    <ExpertProfile expert={expert} chatRoomId={selectedRoom?.id} />
+        isLoading ? (
+            <div className="flex justify-center items-center min-h-[calc(90vh-100px)]">
+                <div className="flex items-center space-x-2 bg-white rounded-full px-6 py-3 shadow-lg">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-200"></div>
                 </div>
             </div>
-        </div>
+        ) : (
+            <div className="mx-auto sm:px-5 sm:mt-8  px-4 pb-5 bg-gray-100 min-h-[calc(90vh-100px)]">
+                <div className="lg:flex gap-4 lg:gap-0">
+                    {/* Chat Sidebar */}
+                    <div className="w-full md:flex-1 order-2 md:order-1">
+                        <ChatSidebar
+                            experts={experts}
+                            selectedRoom={selectedRoom}
+                            onSelectExpert={handleSelectExpert}
+                        />
+                    </div>
 
+                    {/* Chat Box */}
+                    <div className="w-full md:w-96 lg:w-[500px] xl:w-[600px] flex-shrink-0 order-1 md:order-2 min-h-0">
+                        <ChatBox
+                            roomId={selectedRoom?.id}
+                            expert={expert}
+                        />
+                    </div>
+
+                    {/* Customer Profile */}
+                    <div className="w-full md:flex-1 lg:block order-3">
+                        <ExpertProfile expert={expert} chatRoomId={selectedRoom?.id} />
+                    </div>
+                </div>
+            </div>
+        )
     );
 };
 
