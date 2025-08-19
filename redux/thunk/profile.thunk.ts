@@ -58,17 +58,17 @@ export const updateProfilePictureThunk = createAsyncThunk(
   }
 );
 
-export const fetchExpertStatsThunk = createAsyncThunk(
-  "profile/fetchExpertStats",
+export const fetchCustomerStatsThunk = createAsyncThunk(
+  "profile/fetchCustomerStats",
   async () => {
     try {
-      const response = await privateClient.get("/expert/stats");
+      const response = await privateClient.get("/customer/stats");
       return response;
     } catch (error: any) {
       return {
         status: false,
         message:
-          error.response?.data?.message || "Failed to fetch expert stats",
+          error.response?.data?.message || "Failed to fetch customer stats",
         data: null,
       };
     }

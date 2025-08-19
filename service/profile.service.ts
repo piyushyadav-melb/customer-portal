@@ -2,7 +2,7 @@ import { privateClient } from "@/http/http-client";
 import {
   fetchProfileThunk,
   updateProfileThunk,
-  fetchExpertStatsThunk,
+  fetchCustomerStatsThunk,
 } from "@/redux/thunk/profile.thunk";
 import { store } from "@/redux/store";
 
@@ -66,9 +66,9 @@ export const updateProfilePicture = async (file: File) => {
   }
 };
 
-export const getExpertStats = async () => {
+export const getCustomerStats = async () => {
   try {
-    const { payload }: any = await store.dispatch(fetchExpertStatsThunk());
+    const { payload }: any = await store.dispatch(fetchCustomerStatsThunk());
     return {
       status: payload?.data?.status,
       data: payload?.data?.data,

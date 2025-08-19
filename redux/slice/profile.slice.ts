@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchProfileThunk,
   updateProfileThunk,
-  fetchExpertStatsThunk,
+  fetchCustomerStatsThunk,
 } from "../thunk/profile.thunk";
 
 interface Stats {
@@ -68,15 +68,15 @@ const profileSlice = createSlice({
       })
 
       // New expert stats cases
-      .addCase(fetchExpertStatsThunk.pending, (state) => {
+      .addCase(fetchCustomerStatsThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchExpertStatsThunk.fulfilled, (state, action) => {
+      .addCase(fetchCustomerStatsThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.stats = action.payload?.data;
       })
-      .addCase(fetchExpertStatsThunk.rejected, (state, action) => {
+      .addCase(fetchCustomerStatsThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Something went wrong";
       });

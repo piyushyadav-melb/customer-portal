@@ -61,7 +61,7 @@ const Login = () => {
         if (response?.status === true) {
           fetchProfile();
           toast.success(response?.message);
-          navigation.replace("dashboard");
+          navigation.replace("find-expert");
         } else {
           toast.error(response?.message);
         }

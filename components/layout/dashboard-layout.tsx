@@ -105,7 +105,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({ children }) => {
             </div>
           </div>
         </div>
-        <Footer handleOpenSearch={() => setOpen(true)} />
+        {/* <Footer handleOpenSearch={() => setOpen(true)} /> */}
         <ThemeCustomize />
       </>
     );
@@ -128,7 +128,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({ children }) => {
             </LayoutWrapper>
           </div>
         </div>
-        <Footer handleOpenSearch={() => setOpen(true)} />
+        {/* <Footer handleOpenSearch={() => setOpen(true)} /> */}
         <ThemeCustomize />
       </>
     );
@@ -155,7 +155,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({ children }) => {
             </LayoutWrapper>
           </div>
         </div>
-        <Footer handleOpenSearch={() => setOpen(true)} />
+        {/* <Footer handleOpenSearch={() => setOpen(true)} /> */}
         <ThemeCustomize />
       </>
     );
@@ -181,7 +181,7 @@ const DashboardLayout: React.FC<IDashboardLayoutProps> = ({ children }) => {
           </LayoutWrapper>
         </div>
       </div>
-      <Footer handleOpenSearch={() => setOpen(true)} />
+      {/* <Footer handleOpenSearch={() => setOpen(true)} /> */}
       {isMobile && <ThemeCustomize />}
     </>
   );
