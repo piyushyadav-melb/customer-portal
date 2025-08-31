@@ -211,18 +211,43 @@ const ChatBox = ({ roomId, expert }) => {
         }
     };
 
-    const onMessageSearchInput = () => {
+    const onMessageSearchInput = async () => {
         if (messageSearchTerm.trim()) {
             setIsSearchMode(true);
-            // Implement search logic
-            const filtered = messages.filter(msg =>
-                msg.content && msg.content.toLowerCase().includes(messageSearchTerm.toLowerCase())
-            );
-            setSearchResults(filtered);
-            setCurrentSearchIndex(0);
+            setIsSearchingMessages(true);
+
+            try {
+                // Server-side search
+                const response = await getChatHistory(roomId, 1, 200, messageSearchTerm.trim());
+                setSearchResults(response || []);
+                setCurrentSearchIndex(0);
+
+                // Also search in current messages for instant results
+                const localFiltered = messages.filter(msg =>
+                    msg.content && msg.content.toLowerCase().includes(messageSearchTerm.toLowerCase())
+                );
+
+                // Combine server results with local results and remove duplicates
+                const combinedResults = [...response || [], ...localFiltered];
+                const uniqueResults = combinedResults.filter((msg, index, self) =>
+                    index === self.findIndex(m => m.id === msg.id)
+                );
+
+                setSearchResults(uniqueResults);
+            } catch (error) {
+                console.error("Search failed:", error);
+                // Fallback to local search
+                const filtered = messages.filter(msg =>
+                    msg.content && msg.content.toLowerCase().includes(messageSearchTerm.toLowerCase())
+                );
+                setSearchResults(filtered);
+            } finally {
+                setIsSearchingMessages(false);
+            }
         } else {
             setIsSearchMode(false);
             setSearchResults([]);
+            setCurrentSearchIndex(0);
         }
     };
 
@@ -231,6 +256,7 @@ const ChatBox = ({ roomId, expert }) => {
         setIsSearchMode(false);
         setSearchResults([]);
         setCurrentSearchIndex(0);
+        setIsSearchingMessages(false);
     };
 
     const nextSearchResult = () => {
@@ -291,7 +317,21 @@ const ChatBox = ({ roomId, expert }) => {
         setImagePreview("");
         setUploadedFileData(null);
         setUploadError("");
+    };
 
+    const highlightSearchTerm = (text: string, searchTerm: string) => {
+        if (!searchTerm || !text) return text;
+
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        const parts = text.split(regex);
+
+        return parts.map((part, index) =>
+            regex.test(part) ? (
+                <mark key={index} className="bg-green-600 text-inherit rounded ">
+                    {part}
+                </mark>
+            ) : part
+        );
     };
 
     const getFileType = (file) => {
@@ -355,6 +395,60 @@ const ChatBox = ({ roomId, expert }) => {
                 </div>
             </div>
 
+            {/* Search Bar */}
+            <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200">
+                <div className="relative flex-1">
+                    <input
+                        type="text"
+                        value={messageSearchTerm}
+                        onChange={(e) => setMessageSearchTerm(e.target.value)}
+                        onInput={onMessageSearchInput}
+                        placeholder="Search in conversation..."
+                        className="w-full px-4 py-2 pr-20 border rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                        disabled={isSearchingMessages}
+                        style={{ opacity: isSearchingMessages ? 0.5 : 1 }}
+                    />
+                    {messageSearchTerm && (
+                        <button
+                            onClick={clearMessageSearch}
+                            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                    <button
+                        onClick={onMessageSearchInput}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        disabled={isSearchingMessages}
+                    >
+                        <Search className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Search Navigation */}
+                {isSearchMode && searchResults.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span>{currentSearchIndex + 1} of {searchResults.length}</span>
+                        <div className="flex gap-1">
+                            <button
+                                onClick={previousSearchResult}
+                                disabled={currentSearchIndex === 0}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={nextSearchResult}
+                                disabled={currentSearchIndex >= searchResults.length - 1}
+                                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Messages Container */}
             <div className="flex-1 p-4 overflow-y-auto flex flex-col-reverse" style={{ scrollbarWidth: 'thin' }}>
                 {isLoading ? (
@@ -367,113 +461,121 @@ const ChatBox = ({ roomId, expert }) => {
                     </div>
                 ) : (
                     <>
-                        {[...messages].reverse().map((message: any, index) => (
-                            <div
-                                key={message.id}
-                                className={`flex items-start space-x-2 mb-4 ${message?.senderType === "CUSTOMER" ? "justify-end" : "justify-start"
-                                    } ${isSearchMode && index === currentSearchIndex ? "bg-yellow-100 rounded-lg p-2" : ""}`}
-                            >
-                                {/* Profile Picture on Left Side for received messages */}
-                                {message?.senderType === "EXPERT" && (
-                                    <div className="relative w-8 h-8 mt-1">
-                                        {hasValidProfilePicture(expert?.profile_picture_url) ? (
-                                            <img
-                                                src={expert?.profile_picture_url}
-                                                alt="Expert"
-                                                className="rounded-full w-8 h-8 object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
-                                                {getInitials(expert?.name)}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                        {(isSearchMode ? searchResults : [...messages].reverse()).map((message: any, index) => {
+                            const isHighlighted = isSearchMode && searchResults.findIndex(m => m.id === message.id) === currentSearchIndex;
 
-                                {/* Message Content */}
+                            return (
                                 <div
-                                    className={`rounded-xl pt-1.5 pb-1 px-3 max-w-xs lg:max-w-md ${message?.senderType === "CUSTOMER"
-                                        ? "bg-blue-600 text-white rounded-br-none"
-                                        : "bg-gray-100 text-gray-900 rounded-bl-none"
-                                        }`}
+                                    key={message.id}
+                                    className={`flex items-start space-x-2 mb-4 ${message.senderType === "CUSTOMER" ? "justify-end" : "justify-start"
+                                        } ${isHighlighted ? "bg-yellow-100 rounded-lg p-2" : ""}`}
                                 >
-
-                                    {/* File Display */}
-                                    {message?.content && (
-                                        <p className="text-xs leading-relaxed">{message?.content}</p>
-                                    )}
-
-                                    {/* File Display */}
-                                    {(message?.imageLink || message?.videoLink || message?.audioLink || message?.documentLink) && (
-                                        <div className="mt-2">
-                                            {/* Image Display */}
-                                            {message?.imageLink && (
+                                    {/* Profile Picture on Left Side for received messages */}
+                                    {message?.senderType === "EXPERT" && (
+                                        <div className="relative w-8 h-8 mt-1">
+                                            {hasValidProfilePicture(expert?.profile_picture_url) ? (
                                                 <img
-                                                    src={message?.imageLink}
-                                                    className="max-w-full h-auto rounded-lg cursor-pointer"
-                                                    alt="Image"
-                                                    onClick={() => window.open(message.imageLink, '_blank')}
+                                                    src={expert?.profile_picture_url}
+                                                    alt="Expert"
+                                                    className="rounded-full w-8 h-8 object-cover"
                                                 />
-                                            )}
-
-                                            {/* Video Display */}
-                                            {message?.videoLink && (
-                                                <video
-                                                    src={message?.videoLink}
-                                                    controls
-                                                    className="max-w-full h-auto rounded-lg"
-                                                />
-                                            )}
-
-                                            {/* Audio Display */}
-                                            {message?.audioLink && (
-                                                <audio
-                                                    src={message?.audioLink}
-                                                    controls
-                                                    className="w-full"
-                                                />
-                                            )}
-
-                                            {/* Document Display */}
-                                            {message.documentLink && (
-                                                <div
-                                                    className="inline-flex items-center gap-2 mt-1 bg-black bg-opacity-60 py-2 px-3 rounded cursor-pointer hover:bg-opacity-80 transition-colors"
-                                                    onClick={() => window.open(message?.documentLink, '_blank')}
-                                                >
-                                                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                    </svg>
-                                                    <span className="text-xs text-white">{message?.fileName || "Document"}</span>
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                                                    {getInitials(expert?.name)}
                                                 </div>
                                             )}
                                         </div>
                                     )}
 
-                                    <span className="text-xs text-gray-400 float-right mt-1">
-                                        {new Date(message.timestamp).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </span>
-                                </div>
+                                    {/* Message Content */}
+                                    <div
+                                        className={`rounded-xl pt-1.5 pb-1 px-3 max-w-xs lg:max-w-md ${message?.senderType === "CUSTOMER"
+                                            ? "bg-blue-600 text-white rounded-br-none"
+                                            : "bg-gray-100 text-gray-900 rounded-bl-none"
+                                            }`}
+                                    >
 
-                                {message?.senderType === "CUSTOMER" && (
-                                    <div className="relative w-8 h-8 mt-1">
-                                        {hasValidProfilePicture(profilePicture) ? (
-                                            <img
-                                                src={profilePicture}
-                                                alt="Customer"
-                                                className="rounded-full w-8 h-8 object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
-                                                {getInitials(profile?.name || "C")}
+                                        {message.content && (
+                                            <p className="text-xs leading-relaxed">
+                                                {isSearchMode && messageSearchTerm ?
+                                                    highlightSearchTerm(message.content, messageSearchTerm) :
+                                                    message.content
+                                                }
+                                            </p>
+                                        )}
+
+                                        {/* File Display */}
+                                        {(message?.imageLink || message?.videoLink || message?.audioLink || message?.documentLink) && (
+                                            <div className="mt-2">
+                                                {/* Image Display */}
+                                                {message?.imageLink && (
+                                                    <img
+                                                        src={message?.imageLink}
+                                                        className="max-w-full h-auto rounded-lg cursor-pointer"
+                                                        alt="Image"
+                                                        onClick={() => window.open(message.imageLink, '_blank')}
+                                                    />
+                                                )}
+
+                                                {/* Video Display */}
+                                                {message?.videoLink && (
+                                                    <video
+                                                        src={message?.videoLink}
+                                                        controls
+                                                        className="max-w-full h-auto rounded-lg"
+                                                    />
+                                                )}
+
+                                                {/* Audio Display */}
+                                                {message?.audioLink && (
+                                                    <audio
+                                                        src={message?.audioLink}
+                                                        controls
+                                                        className="w-full"
+                                                    />
+                                                )}
+
+                                                {/* Document Display */}
+                                                {message.documentLink && (
+                                                    <div
+                                                        className="inline-flex items-center gap-2 mt-1 bg-black bg-opacity-60 py-2 px-3 rounded cursor-pointer hover:bg-opacity-80 transition-colors"
+                                                        onClick={() => window.open(message?.documentLink, '_blank')}
+                                                    >
+                                                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                        </svg>
+                                                        <span className="text-xs text-white">{message?.fileName || "Document"}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
+
+                                        <span className="text-xs text-gray-400 float-right mt-1">
+                                            {new Date(message.timestamp).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
                                     </div>
-                                )}
-                            </div>
-                        ))}
+
+                                    {message?.senderType === "CUSTOMER" && (
+                                        <div className="relative w-8 h-8 mt-1">
+                                            {hasValidProfilePicture(profilePicture) ? (
+                                                <img
+                                                    src={profilePicture}
+                                                    alt="Customer"
+                                                    className="rounded-full w-8 h-8 object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                                                    {getInitials(profile?.name || "C")}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
 
                         <div ref={messagesEndRef} />
 

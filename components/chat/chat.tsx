@@ -5,6 +5,7 @@ import ChatBox from "./chat-box";
 import ExpertProfile from "./expert-profile";
 import { useSocket } from "@/hooks/use-socket";
 import { useSearchParams } from "next/navigation";
+import { fetchProfile } from "@/service/profile.service";
 
 const Chat: React.FC = () => {
     const [experts, setExperts] = useState([]);
@@ -14,6 +15,7 @@ const Chat: React.FC = () => {
     const [expert, setExpert] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [customerId, setCustomerId] = useState(null);
     const socket = useSocket();
     const searchParams = useSearchParams();
 
@@ -28,6 +30,14 @@ const Chat: React.FC = () => {
         setExpert(expert);
         getChatHistory(room.id).then(setMessages);
     };
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            const response: any = await fetchProfile();
+            setCustomerId(response.data.id);
+        };
+        loadProfile();
+    }, []);
 
     useEffect(() => {
         // Fetch experts and chat rooms on mount
@@ -111,6 +121,25 @@ const Chat: React.FC = () => {
         };
     }, [socket, expert?.id]);
 
+    const handleChatDeleted = (deletedExpertId: string) => {
+        // Remove the customer from the customers list
+        setExperts(prevCustomers =>
+            prevCustomers.filter(expert => expert.id !== deletedExpertId)
+        );
+
+        // Remove the chat room from the chat rooms list
+        setChatRooms(prevRooms =>
+            prevRooms.filter(room => room.expertId !== deletedExpertId)
+        );
+
+        // If the deleted customer was selected, clear the selection
+        if (expert?.id === deletedExpertId) {
+            setSelectedRoom(null);
+            setExpert(null);
+            setMessages([]);
+        }
+    };
+
     return (
         isLoading ? (
             <div className="flex justify-center items-center min-h-[calc(90vh-100px)]">
@@ -129,6 +158,8 @@ const Chat: React.FC = () => {
                             experts={experts}
                             selectedRoom={selectedRoom}
                             onSelectExpert={handleSelectExpert}
+                            onChatDeleted={handleChatDeleted}
+                            customerId={customerId}
                         />
                     </div>
 
