@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search, MoreVertical, Trash2, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { deleteChat } from "@/service/chat.service";
+import { getExperts } from "@/service/expert.service";
+import { Expert } from "@/types/expert.types";
 
 const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, customerId }) => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -9,6 +11,8 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
     const [currentDropdownExpert, setCurrentDropdownExpert] = useState(null);
     const [filteredExperts, setFilteredExperts] = useState([]);
     const [deletingExpertId, setDeletingExpertId] = useState(null);
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
 
     const getInitials = (name) => {
         if (!name) return "U";
@@ -19,6 +23,45 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
         return url && url !== '' && url !== 'null' && url !== 'undefined';
     };
 
+    // Debounced search function
+    const debouncedSearch = useCallback(
+        debounce(async (query: string) => {
+            if (query.trim().length < 2) {
+                setSearchResults([]);
+                return;
+            }
+
+            try {
+                setIsSearching(true);
+                const response = await getExperts({
+                    searchText: query.trim(),
+                    perPage: 10 // Limit results for better UX
+                });
+
+                if (response.status && response.data?.result) {
+                    setSearchResults(response.data.result);
+                } else {
+                    setSearchResults([]);
+                }
+            } catch (error) {
+                console.error("Error searching experts:", error);
+                toast.error("Failed to search experts");
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300),
+        []
+    );
+
+    // Handle search input change
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchQuery(value);
+        debouncedSearch(value);
+    };
+
+    // Legacy local search for existing experts (fallback)
     const onSearch = () => {
         if (searchQuery.trim()) {
             const filtered = experts.filter(expert =>
@@ -33,9 +76,10 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
     const clearSearch = () => {
         setSearchQuery("");
         setFilteredExperts([]);
+        setSearchResults([]);
     };
 
-    const selectExpert = (expert) => {
+    const selectExpert = (expert: Expert) => {
         onSelectExpert(expert);
         clearSearch();
     };
@@ -104,6 +148,18 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
         }
     };
 
+    // Close search results when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.search-container')) {
+                setSearchResults([]);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, []);
+
     return (
         <div className="w-full bg-white border border-gray-200 p-4 lg:mt-6 rounded-xl overflow-y-auto h-[calc(90vh-100px)]">
             <div className="block items-center justify-between mb-4">
@@ -112,57 +168,72 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
                 </div>
 
                 {/* Search Bar */}
-                <div className="relative w-full">
+                <div className="relative w-full search-container">
                     <div className="inline-flex w-full relative items-center bg-gray-50 rounded-full overflow-hidden mb-2">
                         <button className="absolute left-3 text-gray-400">
-                            <Search className="w-5 h-5" />
+                            {isSearching ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <Search className="w-5 h-5" />
+                            )}
                         </button>
                         <div className="overflow-hidden w-full">
                             <input
                                 type="text"
-                                placeholder="Search"
+                                placeholder="Search experts..."
                                 value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                    onSearch();
-                                }}
+                                onChange={handleSearchChange}
                                 className="py-3 px-12 bg-gray-50 w-full placeholder:text-gray-600 focus:outline-none"
                             />
                         </div>
                     </div>
 
-                    {/* Search Dropdown */}
-                    {searchQuery && filteredExperts.length > 0 && (
+                    {/* Search Results Dropdown */}
+                    {searchQuery && (searchResults.length > 0 || isSearching) && (
                         <ul className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                            {filteredExperts.map((expert) => (
-                                <li
-                                    key={expert.id}
-                                    className="border-b last:border-b-0 flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                                    onClick={() => selectExpert(expert)}
-                                >
-                                    <div className="relative mr-3 flex-shrink-0">
-                                        <div className="relative w-8 h-8">
-                                            {hasValidProfilePicture(expert.profile_picture_url) ? (
-                                                <img
-                                                    src={expert.profile_picture_url}
-                                                    className="w-8 h-8 rounded-full object-cover"
-                                                    alt="Expert"
-                                                />
-                                            ) : (
-                                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
-                                                    {getInitials(expert.name)}
-                                                </div>
+                            {isSearching ? (
+                                <li className="flex items-center justify-center p-4">
+                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                    <span className="text-gray-500">Searching experts...</span>
+                                </li>
+                            ) : searchResults.length > 0 ? (
+                                searchResults.map((expert) => (
+                                    <li
+                                        key={expert.id}
+                                        className="border-b last:border-b-0 flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                                        onClick={() => selectExpert(expert)}
+                                    >
+                                        <div className="relative mr-3 flex-shrink-0">
+                                            <div className="relative w-8 h-8">
+                                                {hasValidProfilePicture(expert.profile_picture_url) ? (
+                                                    <img
+                                                        src={expert.profile_picture_url}
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                        alt="Expert"
+                                                    />
+                                                ) : (
+                                                    <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
+                                                        {getInitials(expert.name)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <span className="text-sm font-medium text-gray-900 block truncate pb-1">{expert.name}</span>
+                                            {expert.email && (
+                                                <span className="text-xs text-gray-500 block truncate pb-1">{expert.email}</span>
+                                            )}
+                                            {expert.job_title && (
+                                                <span className="text-xs text-blue-600 block truncate">{expert.job_title}</span>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <span className="text-sm font-medium text-gray-900 block truncate">{expert.name}</span>
-                                        {expert.email && (
-                                            <span className="text-xs text-gray-500 block truncate">{expert.email}</span>
-                                        )}
-                                    </div>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="flex items-center justify-center p-4 text-gray-500">
+                                    No experts found
                                 </li>
-                            ))}
+                            )}
                         </ul>
                     )}
                 </div>
@@ -260,5 +331,17 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
         </div>
     );
 };
+
+// Debounce utility function
+function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number
+): (...args: Parameters<T>) => void {
+    let timeout: NodeJS.Timeout;
+    return (...args: Parameters<T>) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
 
 export default ChatSidebar;
