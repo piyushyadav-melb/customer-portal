@@ -36,6 +36,14 @@ const Hero = () => {
                 >
                   <Link href="/register">Signup</Link>
                 </Button>
+
+                <Button
+                  asChild
+                  size="xl"
+                  className="bg-blue-700  hover:bg-blue-500"
+                >
+                  <Link href="/find-expert-public">Find Expert</Link>
+                </Button>
               </div>
             </div>
           </div>
