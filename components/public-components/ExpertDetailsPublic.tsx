@@ -65,7 +65,7 @@ export const ExpertDetailsPublic = () => {
     }
 
     if (!expertDetails) {
-        return <div>Expert not found</div>;
+        return <div></div>;
     }
 
     const schedule = expertDetails?.schedule
