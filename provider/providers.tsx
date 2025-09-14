@@ -11,6 +11,8 @@ import React, { createContext, useContext, useRef, useEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { getCookie } from "@/utils/cookie";
 import { useSocket } from "@/hooks/use-socket";
+import NotificationProvider from "./notification.provider";
+import PopupNotificationManager from "@/components/notifications/popup-notification-manager";
 
 const inter = Inter({ subsets: ["latin"] });
 const SocketContext = createContext<Socket | null>(null);
@@ -44,12 +46,15 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
           enableSystem={false}
           defaultTheme="light"
         >
-          <div className={cn("h-full  ")}>
-            {children}
-            <ReactToaster />
-          </div>
-          <Toaster />
-          <SonnToaster />
+          <NotificationProvider>
+            <div className={cn("h-full  ")}>
+              {children}
+              <ReactToaster />
+            </div>
+            <Toaster />
+            <SonnToaster />
+            <PopupNotificationManager />
+          </NotificationProvider>
         </ThemeProvider>
       </body>
     );
@@ -68,12 +73,15 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         enableSystem={false}
         defaultTheme="light"
       >
-        <div className={cn("h-full  ")}>
-          {children}
-          <ReactToaster />
-        </div>
-        <Toaster />
-        <SonnToaster />
+        <NotificationProvider>
+          <div className={cn("h-full  ")}>
+            {children}
+            <ReactToaster />
+          </div>
+          <Toaster />
+          <SonnToaster />
+          <PopupNotificationManager />
+        </NotificationProvider>
       </ThemeProvider>
     </body>
   );

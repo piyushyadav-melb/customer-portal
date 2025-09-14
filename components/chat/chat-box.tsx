@@ -6,7 +6,7 @@ import { getTimeFromTimestamp, to12HourFormat, getFileTypeFromMimeType, formatFi
 import { fetchProfile } from "@/service/profile.service";
 import { toast } from "sonner";
 
-const CURRENT_USER_ID = "CURRENT_USER_ID"; // Replace with actual expert user ID from auth
+let CURRENT_USER_ID = "CURRENT_USER_ID";
 
 const ChatBox = ({ roomId, expert }) => {
     const [messages, setMessages] = useState<Message[]>([]);
@@ -38,6 +38,7 @@ const ChatBox = ({ roomId, expert }) => {
                 if (response.status && response.data) {
                     setProfilePicture(response.data.profile_picture_url);
                     setProfile(response.data);
+                    CURRENT_USER_ID = response.data.id;
                 }
             } catch (error: any) {
             }
@@ -75,7 +76,7 @@ const ChatBox = ({ roomId, expert }) => {
                 if (socket) {
                     await socket.emitWithAck?.("joinChat", {
                         chatRoomId: roomId,
-                        userId: CURRENT_USER_ID
+                        userId: profile.id
                     });
                 }
             } catch (error) {
@@ -130,7 +131,7 @@ const ChatBox = ({ roomId, expert }) => {
             // OR if you update backend to use chatRoomId:
             socket.emit("joinChat", {
                 chatRoomId: roomId,
-                userId: CURRENT_USER_ID
+                userId: profile.id
             });
         }
     }, [socket, roomId, expert?.id]);
@@ -174,9 +175,10 @@ const ChatBox = ({ roomId, expert }) => {
             if (socket) {
                 const messageData: any = {
                     chatRoomId: roomId,
-                    senderId: CURRENT_USER_ID, // Replace with actual user ID
+                    senderId: profile.id, // Replace with actual user ID
                     senderType: "CUSTOMER",
                     content: input,
+                    receipentId: expert.id,
                 };
 
                 if (uploadedFileData) {
@@ -206,7 +208,7 @@ const ChatBox = ({ roomId, expert }) => {
             socket.emit("typing", {
                 chatRoomId: roomId,
                 isTyping,
-                userId: CURRENT_USER_ID,
+                userId: profile.id,
             });
         }
     };
@@ -218,7 +220,7 @@ const ChatBox = ({ roomId, expert }) => {
 
             try {
                 // Server-side search
-                const response = await getChatHistory(roomId, 1, 200, messageSearchTerm.trim());
+                const response = await getChatHistory(roomId, 1, 1000, messageSearchTerm.trim());
                 setSearchResults(response || []);
                 setCurrentSearchIndex(0);
 

@@ -6,6 +6,7 @@ import modalSlice from "./modal.slice";
 import bookingsSlice from "./bookings.slice";
 import meetingsSlice from "./meetings.slice";
 import expertSlice from "./expert.slice";
+import notificationSlice from "./notification.slice";
 
 const rootReducer: any = combineReducers({
   auth: authSlice,
@@ -15,6 +16,7 @@ const rootReducer: any = combineReducers({
   bookings: bookingsSlice,
   meetings: meetingsSlice,
   expert: expertSlice,
+  notification: notificationSlice,
 });
 
 export default rootReducer;

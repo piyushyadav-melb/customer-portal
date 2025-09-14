@@ -15,6 +15,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import MobileMenuHandler from "./mobile-menu-handler";
 import ClassicHeader from "./layout/classic-header";
 import FullScreen from "./full-screen";
+import NotificationBell from "@/components/notifications/notification-bell";
 
 const NavTools = ({
   isDesktop,
@@ -31,6 +32,7 @@ const NavTools = ({
       {isDesktop && <FullScreen />}
 
       <ThemeButton />
+      <NotificationBell />
       {/* <Inbox /> */}
       {/* <NotificationMessage /> */}
 
