@@ -10,23 +10,12 @@ interface NotificationProviderProps {
 
 const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
     const socket = useSocket();
-
     useEffect(() => {
-        if (socket) {
-            // Initialize notification service with socket
-            const notificationServiceInstance = notificationService
-            console.log('Notification service initialized with socket', notificationService);
-            notificationService.initializeSocket(socket);
-
-            // Request notification permission
-            notificationService.requestNotificationPermission();
-
-            // Cleanup on unmount
-            return () => {
-                notificationService.cleanup();
-            };
-        }
+        // The notification service initialization is now handled in useSocket
+        // when the socket connects, so we don't need to do anything here
+        console.log("NotificationProvider mounted, socket:", socket?.connected);
     }, [socket]);
+
 
     return (
         <>
