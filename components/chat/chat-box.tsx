@@ -76,12 +76,12 @@ const ChatBox = ({ roomId, expert }) => {
                 if (socket) {
                     await socket.emitWithAck?.("joinChat", {
                         chatRoomId: roomId,
-                        userId: profile.id
+                        userId: profile?.id || "CURRENT_USER_ID"
                     });
                 }
             } catch (error) {
                 setIsLoading(false);
-                toast.error("Failed to load chat history");
+                // toast.error("Failed to load chat history");
             } finally {
                 setIsLoading(false);
             }
@@ -131,25 +131,30 @@ const ChatBox = ({ roomId, expert }) => {
             // OR if you update backend to use chatRoomId:
             socket.emit("joinChat", {
                 chatRoomId: roomId,
-                userId: profile.id
+                userId: profile?.id || "CURRENT_USER_ID"
             });
         }
     }, [socket, roomId, expert?.id]);
 
 
-    useEffect(() => {
-        setMessages([]);
-        return () => {
-            if (socket && roomId) {
-                console.log("LEAVING CHAT");
-                socket.emit("leaveChat", { chatRoomId: roomId });
-            }
-        };
-    }, [roomId]);
+    // useEffect(() => {
+    //     setMessages([]);
+    //     return () => {
+    //         if (socket && roomId) {
+    //             console.log("LEAVING CHAT");
+    //             socket.emit("leaveChat", { chatRoomId: roomId });
+    //         }
+    //     };
+    // }, [roomId]);
 
     // useEffect(() => {
     //     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     // }, [messages]);
+
+    useEffect(() => {
+        // Clear messages when room changes
+        setMessages([]);
+    }, [roomId]);
 
 
     // Close attachment dropdown when clicking outside

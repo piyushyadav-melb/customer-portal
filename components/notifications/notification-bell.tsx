@@ -146,9 +146,6 @@ const NotificationBell: React.FC = () => {
                         {filteredUnreadCount > 9 ? '9+' : filteredUnreadCount}
                     </Badge>
                 )}
-                {!isConnected && (
-                    <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                )}
             </Button>
 
             {isOpen && (
@@ -156,11 +153,7 @@ const NotificationBell: React.FC = () => {
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                         <div className="flex items-center space-x-2">
                             <span className="font-semibold text-gray-900 dark:text-white">Notifications</span>
-                            {!isConnected && (
-                                <Badge variant="outline" className="text-xs">
-                                    Offline
-                                </Badge>
-                            )}
+
                         </div>
                         <div className="flex space-x-1">
                             {filteredUnreadCount > 0 && (
@@ -193,9 +186,6 @@ const NotificationBell: React.FC = () => {
                             <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
                                 <Bell className="w-8 h-8 mb-2 opacity-50" />
                                 <p className="text-sm">No notifications yet</p>
-                                {!isConnected && (
-                                    <p className="text-xs mt-1 text-red-500">Connection offline</p>
-                                )}
                             </div>
                         ) : (
                             <div className="space-y-1 p-2">

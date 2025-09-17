@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
-import { useSocket } from '@/hooks/use-socket';
-import { notificationService } from '@/service/notification.service';
+import React, { useEffect } from "react";
+import { useSocket } from "@/hooks/use-socket";
+import notificationService from "@/service/notification.service";
+import PopupNotificationManager from "@/components/notifications/popup-notification-manager";
 
 interface NotificationProviderProps {
     children: React.ReactNode;
@@ -9,40 +10,30 @@ interface NotificationProviderProps {
 
 const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
     const socket = useSocket();
-    const isInitialized = useRef(false);
 
     useEffect(() => {
-        // Initialize notification service when socket is available
-        if (socket && !isInitialized.current) {
-            notificationService.initialize(socket);
-            isInitialized.current = true;
-        }
+        if (socket) {
+            // Initialize notification service with socket
+            const notificationServiceInstance = notificationService
+            console.log('Notification service initialized with socket', notificationService);
+            notificationService.initializeSocket(socket);
 
-        // Cleanup on unmount
-        return () => {
-            if (isInitialized.current) {
+            // Request notification permission
+            notificationService.requestNotificationPermission();
+
+            // Cleanup on unmount
+            return () => {
                 notificationService.cleanup();
-                isInitialized.current = false;
-            }
-        };
+            };
+        }
     }, [socket]);
 
-    // Request notification permission on mount
-    useEffect(() => {
-        const requestNotificationPermission = async () => {
-            if ('Notification' in window && Notification.permission === 'default') {
-                try {
-                    await Notification.requestPermission();
-                } catch (error) {
-                    console.log('Could not request notification permission:', error);
-                }
-            }
-        };
-
-        requestNotificationPermission();
-    }, []);
-
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+            <PopupNotificationManager />
+        </>
+    );
 };
 
 export default NotificationProvider;

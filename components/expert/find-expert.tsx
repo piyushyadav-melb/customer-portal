@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useSocket } from "@/hooks/use-socket";
 
 
 const FindExpert = () => {
@@ -38,6 +39,7 @@ const FindExpert = () => {
   const { experts, loading, error, filters, pagination } = useAppSelector(
     (state: RootState) => state.expert
   );
+  const socket = useSocket();
   const [selectedCountry, setSelectedCountry] = React.useState("");
   const [selectedState, setSelectedState] = React.useState("");
   const [selectedExpert, setSelectedExpert] = useState<any>(null);

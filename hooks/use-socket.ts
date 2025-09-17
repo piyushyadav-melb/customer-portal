@@ -1,6 +1,10 @@
+import { handleGeneralNotification } from "@/redux/slice/notification.slice";
 import { getCookie } from "@/utils/cookie";
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+
+let globalSocket: Socket | null = null;
+
 
 export const useSocket = () => {
   const socketRef = useRef<Socket | null>(null);
@@ -10,7 +14,7 @@ export const useSocket = () => {
     if (!socketRef.current) {
       const token = getCookie("token"); // Get your JWT token
 
-      socketRef.current = io(
+      globalSocket = io(
         "https://expert-customer-backend.onrender.com",
         {
           withCredentials: true,
@@ -26,31 +30,59 @@ export const useSocket = () => {
       );
 
       // Handle connection events
-      socketRef.current.on("connect", () => {
+      globalSocket.on("connect", () => {
         console.log("Socket connected");
       });
 
-      socketRef.current.on("connect_error", (error) => {
+      globalSocket.on("connect_error", (error) => {
         console.error("Socket connection error:", error);
       });
 
-      socketRef.current.on("disconnect", (reason) => {
+      globalSocket.on("disconnect", (reason) => {
         console.log("Socket disconnected:", reason);
       });
 
-      socketRef.current.on("error", (error) => {
+      globalSocket.on("error", (error) => {
         console.error("Socket error:", error);
       });
+
+      globalSocket.on("notification", (data) => {
+        console.log("General notification received:", data);
+      });
+
+      globalSocket.on("bookingNotification", (data) => {
+        console.log("Booking notification received:", data);
+      });
+
+      globalSocket.on("meetingNotification", (data) => {
+        console.log("Meeting notification received:", data);
+      });
+
+      // Handle general notifications
+      globalSocket.on('notification', (data: any) => {
+        handleGeneralNotification(data);
+      });
+
     }
 
+    socketRef.current = globalSocket;
+
+
     // Cleanup on unmount
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-      }
-    };
+    // return () => {
+    //   if (socketRef.current) {
+    //     socketRef.current.disconnect();
+    //     socketRef.current = null;
+    //   }
+    // };
   }, []);
 
   return socketRef.current;
+};
+
+export const disconnectSocket = () => {
+  if (globalSocket) {
+    globalSocket.disconnect();
+    globalSocket = null;
+  }
 };

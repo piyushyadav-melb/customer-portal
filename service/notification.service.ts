@@ -5,78 +5,110 @@ import {
     setConnectionStatus
 } from '@/redux/slice/notification.slice';
 
+// Define payload types
+interface MessageNotificationPayload {
+    chatRoomId: string;
+    sender: {
+        name: string;
+        profilePicture?: string;
+    };
+    message: {
+        content: string;
+    };
+    messageId: string;
+    recipientId: string;
+}
+
+interface GeneralNotificationPayload {
+    title: string;
+    type: string;
+    body?: string;
+    userId: string;
+    data?: any;
+}
+
 class NotificationService {
+    private static instance: NotificationService;
     private socket: any = null;
     private isInitialized = false;
 
-    constructor() {
+    private constructor() {
         this.setupEventListeners = this.setupEventListeners.bind(this);
     }
 
-    /**
-     * Initialize the notification service with socket connection
-     */
-    initialize(socket: any) {
+    public static getInstance(): NotificationService {
+        if (!NotificationService.instance) {
+            NotificationService.instance = new NotificationService();
+        }
+        return NotificationService.instance;
+    }
+
+    public initializeSocket(socket: any) {
         if (this.isInitialized) {
+            console.log('Notification service already initialized');
             return;
         }
 
         this.socket = socket;
         this.setupEventListeners();
         this.isInitialized = true;
-
+        console.log('Notification service initialized with socket');
     }
 
-    /**
-     * Setup socket event listeners
-     */
+    public requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            return Notification.requestPermission();
+        }
+        return Promise.resolve(Notification.permission);
+    }
+
     private setupEventListeners() {
         if (!this.socket) {
             console.error('Socket not available for notification service');
             return;
         }
 
-        // Handle socket connection events
+        // Handle socket connection status
         this.socket.on('connect', () => {
-            console.log('Socket connected - notification service ready');
+            console.log('Socket connected for notifications');
             store.dispatch(setConnectionStatus(true));
         });
 
         this.socket.on('disconnect', () => {
-            console.log('Socket disconnected - notification service offline');
+            console.log('Socket disconnected for notifications');
             store.dispatch(setConnectionStatus(false));
         });
 
         this.socket.on('connect_error', (error: any) => {
-            console.error('Socket connection error:', error);
+            console.error('Socket connection error for notifications:', error);
             store.dispatch(setConnectionStatus(false));
         });
 
         // Handle message notifications
-        this.socket.on('messageNotification', (data: any) => {
-            this.handleMessageNotification(data);
-        });
+        // this.socket.on('messageNotification', (payload: MessageNotificationPayload) => {
+        //     this.handleMessageNotification(payload);
+        // });
 
         // Handle general notifications
-        this.socket.on('notification', (data: any) => {
-            this.handleGeneralNotification(data);
+        this.socket.on('notification', (payload: GeneralNotificationPayload) => {
+            this.handleGeneralNotification(payload);
         });
 
         // Handle booking notifications
-        this.socket.on('bookingNotification', (data: any) => {
-            this.handleBookingNotification(data);
+        this.socket.on('bookingNotification', (payload: any) => {
+            this.handleBookingNotification(payload);
         });
 
         // Handle meeting notifications
-        this.socket.on('meetingNotification', (data: any) => {
-            this.handleMeetingNotification(data);
+        this.socket.on('meetingNotification', (payload: any) => {
+            this.handleMeetingNotification(payload);
         });
     }
 
     /**
      * Handle message notification from socket
      */
-    private handleMessageNotification(data: any) {
+    private handleMessageNotification(data: MessageNotificationPayload) {
         try {
             // Validate required fields
             if (!data.chatRoomId || !data.sender) {
@@ -85,7 +117,7 @@ class NotificationService {
             }
 
             // Dispatch to Redux store
-            // store.dispatch(handleMessageNotification(data));
+            store.dispatch(handleMessageNotification(data));
 
             // Dispatch custom event for popup notification
             const popupEvent = new CustomEvent('notificationPopup', {
@@ -106,7 +138,7 @@ class NotificationService {
                     message: data.message,
                 }
             });
-            // window.dispatchEvent(popupEvent);
+            window.dispatchEvent(popupEvent);
 
             // Show browser notification if permission granted
             this.showBrowserNotification({
@@ -129,7 +161,7 @@ class NotificationService {
     /**
      * Handle general notification from socket
      */
-    private handleGeneralNotification(data: any) {
+    private handleGeneralNotification(data: GeneralNotificationPayload) {
         try {
             // Validate required fields
             if (!data.title || !data.type) {
@@ -334,7 +366,7 @@ class NotificationService {
     /**
      * Cleanup event listeners
      */
-    cleanup() {
+    public cleanup() {
         if (this.socket) {
             this.socket.off('connect');
             this.socket.off('disconnect');
@@ -346,10 +378,25 @@ class NotificationService {
         }
 
         this.isInitialized = false;
+        this.socket = null;
         console.log('Notification service cleaned up');
+    }
+
+    /**
+     * Get current socket instance
+     */
+    public getSocket() {
+        return this.socket;
+    }
+
+    /**
+     * Check if service is initialized
+     */
+    public isServiceInitialized() {
+        return this.isInitialized;
     }
 }
 
 // Export singleton instance
-export const notificationService = new NotificationService();
+export const notificationService = NotificationService.getInstance();
 export default notificationService;

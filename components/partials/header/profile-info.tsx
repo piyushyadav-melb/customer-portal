@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import FavIcon from "@/public/images/all-img/fav-icon.png";
+import { disconnectSocket } from "@/hooks/use-socket";
 
 const ProfileInfo = () => {
   const navigation = useRouter();
@@ -39,6 +40,7 @@ const ProfileInfo = () => {
   const handelLogout = () => {
     const response: any = logout();
     if (response?.status === true && response?.statusCode === 200) {
+      disconnectSocket();
       navigation.replace("login");
     }
   };
