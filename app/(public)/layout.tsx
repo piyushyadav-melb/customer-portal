@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import FavIcon from "@/public/images/all-img/fav-icon.png";
-import { Button } from "react-day-picker";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
     return (

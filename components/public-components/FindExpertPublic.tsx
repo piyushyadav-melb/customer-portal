@@ -30,6 +30,7 @@ import {
 
 
 const FindExpertPublic = () => {
+    const [mounted, setMounted] = useState(false);
     const dispatch = useAppDispatch();
     const router = useRouter();
     const { experts, loading, error, filters, pagination } = useAppSelector(
@@ -130,6 +131,19 @@ const FindExpertPublic = () => {
     const handleMessageClick = (expert: any) => {
         router.push(`/chat?expertId=${expert.id}`);
     };
+
+    // Ensure component only renders on client side
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
