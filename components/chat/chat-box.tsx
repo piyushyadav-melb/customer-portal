@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Send, Search, X, ChevronLeft, ChevronRight, Paperclip, PlayCircle, Pause, Square, Mic } from 'lucide-react';
+import { Send, Search, X, ChevronLeft, ChevronRight, Paperclip, PlayCircle, Pause, Square, Mic, CheckCheck, Check } from 'lucide-react';
 import { useSocket } from "@/hooks/use-socket";
 import { getChatHistory, sendMessage, uploadFile, type Message, type FileUploadResponse } from "@/service/chat.service";
 import { getTimeFromTimestamp, to12HourFormat, getFileTypeFromMimeType, formatFileSize } from "@/utils/helper";
@@ -77,6 +77,17 @@ const ChatBox = ({ roomId, expert }) => {
         return expert?.is_online ? 'online' : 'offline';
     };
 
+
+    const getMessageTickStatus = (message: Message) => {
+        // Only show ticks for messages sent by the customer
+        if (message.senderType !== "CUSTOMER") {
+            return null;
+        }
+
+        // Return tick status based on read status
+        return message.is_read ? 'read' : 'sent';
+    };
+
     // Initialize chat and join room
     useEffect(() => {
         const initializeChat = async () => {
@@ -115,6 +126,8 @@ const ChatBox = ({ roomId, expert }) => {
         const cleanup = () => {
             socket.off("newMessage");
             socket.off("userTyping");
+            socket.off("messageRead");
+
         };
 
         // Clean up any existing listeners first
@@ -122,6 +135,13 @@ const ChatBox = ({ roomId, expert }) => {
 
         const handleNewMessage = (message: Message) => {
             if (message.chatRoomId === roomId) {
+                // Mark as read if the message is from the expert
+                if (message.senderType === 'EXPERT' && profile?.id) {
+                    socket.emit('markAsRead', {
+                        chatRoomId: roomId,
+                        receiverId: profile.id
+                    });
+                }
                 setMessages((prev) => [...prev, message]);
             }
         };
@@ -132,8 +152,22 @@ const ChatBox = ({ roomId, expert }) => {
             }
         };
 
+        const handleMessageRead = (data) => {
+            console.log("Message read:", data);
+            if (data.chatRoomId === roomId) {
+                // Update the read status for messages in this room
+                setMessages(prev => prev.map(msg =>
+                    msg.senderType === "CUSTOMER" && !msg.is_read
+                        ? { ...msg, is_read: true }
+                        : msg
+                ));
+            }
+        };
+
+
         socket.on("newMessage", handleNewMessage);
         socket.on("userTyping", handleUserTyping);
+        socket.on("messagesRead", handleMessageRead);
 
         return cleanup;
     }, [socket, roomId, expert?.id]);
@@ -151,6 +185,16 @@ const ChatBox = ({ roomId, expert }) => {
             });
         }
     }, [socket, roomId, expert?.id]);
+
+    useEffect(() => {
+        if (socket && roomId && profile?.id) {
+            // Mark messages as read when entering the chat room
+            socket.emit('markAsRead', {
+                chatRoomId: roomId,
+                receiverId: profile.id
+            });
+        }
+    }, [socket, roomId, profile?.id]);
 
 
     // useEffect(() => {
@@ -633,7 +677,6 @@ const ChatBox = ({ roomId, expert }) => {
                     <>
                         {(isSearchMode ? searchResults : [...messages].reverse()).map((message: any, index) => {
                             const isHighlighted = isSearchMode && searchResults.findIndex(m => m.id === message.id) === currentSearchIndex;
-                            console.log("message", message)
                             return (
                                 <div
                                     key={message.id}
@@ -744,6 +787,15 @@ const ChatBox = ({ roomId, expert }) => {
                                                 hour: '2-digit',
                                                 minute: '2-digit'
                                             })}
+                                            {getMessageTickStatus(message) && (
+                                                <div className="flex items-center">
+                                                    {getMessageTickStatus(message) === 'read' ? (
+                                                        <CheckCheck className="w-3 h-3 text-blue-400" />
+                                                    ) : (
+                                                        <Check className="w-3 h-3 text-gray-400" />
+                                                    )}
+                                                </div>
+                                            )}
                                         </span>
                                     </div>
 

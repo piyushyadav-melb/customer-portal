@@ -4,6 +4,9 @@ import toast from "react-hot-toast";
 import { deleteChat } from "@/service/chat.service";
 import { getExperts } from "@/service/expert.service";
 import { Expert } from "@/types/expert.types";
+import { useAppDispatch } from "@/hooks";
+import { useSocket } from "@/hooks/use-socket";
+import { getChatRoomById } from "@/service/chat.service";
 
 const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, customerId }) => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +16,12 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
     const [deletingExpertId, setDeletingExpertId] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
+
+    const [customerUnreadCounts, setCustomerUnreadCounts] = useState<any>({});
+    const [totalUnreadCount, setTotalUnreadCount] = useState(0);
+
+    const dispatch = useAppDispatch();
+    const socket = useSocket();
 
     const getInitials = (name) => {
         if (!name) return "U";
@@ -160,6 +169,121 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!socket) return;
+
+        // Listen for total unread count updates
+        const handleUnreadCountUpdate = (data: { userId: string; userType: string; unreadCount: number }) => {
+            setTotalUnreadCount(data.unreadCount);
+        };
+
+        // Listen for total unread count response
+        const handleUnreadCountResponse = (data: { unreadCount: number; userId: string; userType: string }) => {
+            setTotalUnreadCount(data.unreadCount);
+        };
+
+        // Listen for specific chat unread count updates
+        const handleChatUnreadCountUpdate = async (data: { chatRoomId: string; userId: string; userType: string; unreadCount: number }) => {
+
+            try {
+                // Get chat room details to extract customer ID
+                const roomData = await getChatRoomById(data.chatRoomId);
+
+                if (roomData && roomData.expert) {
+                    const expertId = roomData.expert.id;
+
+                    setCustomerUnreadCounts(prev => ({
+                        ...prev,
+                        [expertId]: data.unreadCount,
+                        userType: data.userType
+                    }));
+                }
+            } catch (error) {
+                console.error("Error fetching chat room data:", error);
+                // Fallback to old method if API call fails
+                const expert = experts.find(c => c.id === data.chatRoomId);
+                if (expert) {
+                    setCustomerUnreadCounts(prev => ({
+                        ...prev,
+                        [expert.id]: data.unreadCount,
+                        userType: data.userType
+                    }));
+                }
+            }
+        };
+
+        // Listen for all chat unread counts response
+        const handleAllChatUnreadCountsResponse = (data: { userId: string; userType: string; chatUnreadCounts: Array<{ chatRoomId: string; unreadCount: number; otherUser: any }> }) => {
+
+            // Update customer unread counts using otherUser data directly
+            const newCounts: any = {};
+            data.chatUnreadCounts.forEach(chat => {
+                // Use otherUser.id as the customer ID directly
+                if (chat.otherUser && chat.otherUser.id) {
+                    newCounts[chat.otherUser.id] = chat.unreadCount;
+                    newCounts["userType"] = data.userType
+
+                }
+            });
+            setCustomerUnreadCounts(newCounts);
+        };
+
+        // Listen for messages read events
+        const handleMessagesRead = (data: { chatRoomId: string; readBy: string }) => {
+
+            // Find the customer ID for this chat room
+            const expert = experts.find(c => c.id === data.chatRoomId);
+            if (expert) {
+                setCustomerUnreadCounts(prev => ({
+                    ...prev,
+                    [expert.id]: 0
+                }));
+            }
+        };
+
+        // Listen for new messages
+        const handleNewMessage = (message: any) => {
+
+            // Find the customer ID for this chat room
+            const expert = experts.find(c => c.id === message.chatRoomId);
+            if (expert) {
+                setCustomerUnreadCounts(prev => ({
+                    ...prev,
+                    [expert.id]: (prev[expert.id] || 0) + 1
+                }));
+            }
+        };
+
+        // Listen for unread count errors
+        const handleUnreadCountError = (error: { error: string }) => {
+            console.error('Unread count error:', error);
+        };
+
+        // Set up event listeners
+        socket.on('unreadCountUpdated', handleUnreadCountUpdate);
+        socket.on('unreadCountResponse', handleUnreadCountResponse);
+        socket.on('chatUnreadCountUpdated', handleChatUnreadCountUpdate);
+        socket.on('allChatUnreadCountsResponse', handleAllChatUnreadCountsResponse);
+        socket.on('messagesRead', handleMessagesRead);
+        socket.on('newMessage', handleNewMessage);
+        socket.on('unreadCountError', handleUnreadCountError);
+
+        // Request initial unread counts
+        socket.emit('getUnreadCount');
+        socket.emit('getAllChatUnreadCounts');
+
+        // Cleanup
+        return () => {
+            socket.off('unreadCountUpdated', handleUnreadCountUpdate);
+            socket.off('unreadCountResponse', handleUnreadCountResponse);
+            socket.off('chatUnreadCountUpdated', handleChatUnreadCountUpdate);
+            socket.off('allChatUnreadCountsResponse', handleAllChatUnreadCountsResponse);
+            socket.off('messagesRead', handleMessagesRead);
+            socket.off('newMessage', handleNewMessage);
+            socket.off('unreadCountError', handleUnreadCountError);
+        };
+    }, [socket, experts]);
+
     return (
         <div className="w-full bg-white border border-gray-200 p-4 lg:mt-6 rounded-xl overflow-y-auto h-[calc(90vh-100px)]">
             <div className="block items-center justify-between mb-4">
@@ -277,9 +401,9 @@ const ChatSidebar = ({ experts, selectedRoom, onSelectExpert, onChatDeleted, cus
 
                             <div className="flex items-center gap-2">
                                 {/* Unread Count */}
-                                {expert.unreadCount > 0 && (
+                                {customerUnreadCounts[expert.id] > 0 && customerUnreadCounts.userType === 'CUSTOMER' && (
                                     <span className="inline-block w-5 h-5 rounded-full bg-green-500 text-white text-xs text-center font-medium leading-5">
-                                        {expert.unreadCount}
+                                        {customerUnreadCounts[expert.id]}
                                     </span>
                                 )}
 

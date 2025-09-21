@@ -110,7 +110,7 @@ const NotificationBell: React.FC = () => {
 
         // Handle navigation based on notification type
         if (notification.type === 'MESSAGE' && notification.data?.chatRoomId) {
-            window.location.href = `/chat?roomId=${notification.data.chatRoomId}`;
+            window.location.href = `/chat?expertId=${notification.data.senderId}`;
         } else if (notification.type === 'BOOKING') {
             window.location.href = '/bookings';
         } else if (notification.type === 'MEETING') {

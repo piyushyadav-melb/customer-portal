@@ -81,7 +81,6 @@ const Chat: React.FC = () => {
         };
 
         fetchData();
-        // getChatRooms().then(setChatRooms);
     }, [searchParams]);
 
     // Listen for global user status changes
