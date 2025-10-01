@@ -91,7 +91,7 @@ export const BookAppointment = ({
       };
 
       await dispatch(createBookingThunk(payload)).unwrap();
-    } catch (error: any) {}
+    } catch (error: any) { }
   };
 
   return (
@@ -117,8 +117,13 @@ export const BookAppointment = ({
               onSelect={handleDateSelect}
               disabled={(date) => {
                 const day = format(date, "EEEE");
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Reset time to start of day
+                const compareDate = new Date(date);
+                compareDate.setHours(0, 0, 0, 0); // Reset time to start of day
+
                 return (
-                  date < new Date() ||
+                  compareDate < today || // Only disable dates before today
                   !schedule[day]?.isAvailable ||
                   isDateUnavailable(date)
                 );
@@ -179,7 +184,7 @@ export const BookAppointment = ({
                         className={cn(
                           "w-full py-6 text-md border-gray-700 hover:bg-purple-900/50 hover:text-white transition-all",
                           selectedSlot === slot.start &&
-                            "bg-purple-900 border-purple-700 text-white"
+                          "bg-purple-900 border-purple-700 text-white"
                         )}
                         onClick={() => setSelectedSlot(slot.start)}
                       >
