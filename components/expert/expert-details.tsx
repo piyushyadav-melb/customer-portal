@@ -3,7 +3,7 @@ import { fetchExpertDetails } from "@/redux/thunk/expert.thunk";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Play, X, FileText, Star } from "lucide-react";
+import { Play, X, FileText, Star, Check, Copy } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import {
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { closePopup } from "@/service/modal.service";
 import { BookAppointment } from "./book-appointment";
+import toast from "react-hot-toast";
 
 export const ExpertDetails = () => {
   const { id } = useParams();
@@ -24,6 +25,7 @@ export const ExpertDetails = () => {
   );
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +42,8 @@ export const ExpertDetails = () => {
     setIsBookingOpen(false);
     await closePopup();
   };
+
+
 
   const handleMessageClick = () => {
     if (expertDetails?.id) {
@@ -62,6 +66,34 @@ export const ExpertDetails = () => {
   const schedule = expertDetails.schedule
     ? JSON.parse(expertDetails.schedule)
     : {};
+
+  const handleShareClick = async () => {
+    try {
+      const currentUrl = window.location.href;
+
+      // Check if the Web Share API is supported
+      if (navigator.share) {
+        await navigator.share({
+          title: `${expertDetails?.name} - Expert Profile`,
+          text: `Check out ${expertDetails?.name}'s expert profile`,
+          url: currentUrl,
+        });
+      } else {
+        // Fallback to clipboard API
+        await navigator.clipboard.writeText(currentUrl);
+        setIsCopied(true);
+        toast.success("Link copied to clipboard!");
+
+        // Reset the copied state after 2 seconds
+        setTimeout(() => {
+          setIsCopied(false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
+  };
+
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -94,6 +126,26 @@ export const ExpertDetails = () => {
               </p>
             </div>
           </div>
+
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={handleShareClick}
+            disabled={isCopied}
+          >
+            {isCopied ? (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-2" />
+                Share Expert
+              </>
+            )}
+          </Button>
+
 
           <Button
             size="lg"

@@ -21,6 +21,8 @@ import {
   ChevronRight,
   Play,
   X,
+  Copy,
+  Check,
 } from "lucide-react";
 import debounce from "lodash/debounce";
 import {
@@ -31,6 +33,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useSocket } from "@/hooks/use-socket";
+import toast from "react-hot-toast";
 
 
 const FindExpert = () => {
@@ -46,6 +49,7 @@ const FindExpert = () => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedBookingExpert, setSelectedBookingExpert] = useState<any>(null);
+  const [copiedExpertId, setCopiedExpertId] = useState<string | null>(null);
 
   const debouncedFetchExperts = useCallback(
     debounce((params: any) => {
@@ -134,6 +138,39 @@ const FindExpert = () => {
 
   const handleMessageClick = (expert: any) => {
     router.push(`/chat?expertId=${expert.id}`);
+  };
+
+  const handleShareClick = async (expertId: string) => {
+    try {
+      const currentUrl = `${window.location.origin}/expert/${expertId}`;
+
+      // Check if the Web Share API is supported
+      if (navigator.share) {
+        await navigator.share({
+          title: `Expert Profile`,
+          text: `Check out this expert profile`,
+          url: currentUrl,
+        });
+      } else {
+        // Fallback to clipboard API
+        await navigator.clipboard.writeText(currentUrl);
+        setCopiedExpertId(expertId);
+        toast.success("Link copied to clipboard!", {
+          style: {
+            background: "#10B981",
+            color: "#fff",
+            zIndex: 9999999,
+          },
+        });
+
+        // Reset the copied state after 2 seconds
+        setTimeout(() => {
+          setCopiedExpertId(null);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error sharing:", error);
+    }
   };
 
   return (
@@ -325,6 +362,19 @@ const FindExpert = () => {
                   </div>
                 </div>
               )}
+
+              {/* Share Button */}
+              <button
+                onClick={() => handleShareClick(expert.id)}
+                className="absolute top-4 left-4 z-10 bg-black/50 backdrop-blur-sm rounded-full p-2 hover:bg-black/60 transition-colors"
+                title="Share expert profile"
+              >
+                {copiedExpertId === expert.id ? (
+                  <Check className="w-4 h-4 text-green-400" />
+                ) : (
+                  <Copy className="w-4 h-4 text-white" />
+                )}
+              </button>
 
               {/* Content */}
               <div className="absolute inset-x-0 bottom-0 p-6 text-white">

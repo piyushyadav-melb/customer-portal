@@ -10,28 +10,33 @@ const layout = ({ children }: { children: React.ReactNode }) => {
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex items-center justify-between">
                         {/* Logo on the left */}
-                        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <Link href="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity">
                             <Image
                                 src={FavIcon}
                                 alt="Mind Namo Logo"
-                                className="w-14 h-14 object-cover"
+                                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-cover"
                                 priority={true}
                             />
                             <div className="text-center">
-                                <h1 className="text-2xl font-bold text-blue-700">MINDNAMO.COM</h1>
-                                <p className="text-sm text-gray-600">Expert Consultation Platform</p>
+                                <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-blue-700">MINDNAMO.COM</h1>
+                                <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Expert Consultation Platform</p>
                             </div>
                         </Link>
 
                         {/* Login and Signup buttons on the right */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3">
                             <Link
                                 href="/login"
-                                className="px-6 py-2 text-blue-700 border border-blue-700 rounded hover:bg-blue-50 transition-colors"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base text-blue-700 border border-blue-700 rounded hover:bg-blue-50 transition-colors"
                             >
                                 Login
                             </Link>
-                            <Link href="/register" className="px-6 py-2 text-blue-700 border border-blue-700 rounded hover:bg-blue-50 transition-colors">Sign Up</Link>
+                            <Link
+                                href="/register"
+                                className="px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-2 text-sm sm:text-base text-blue-700 border border-blue-700 rounded hover:bg-blue-50 transition-colors"
+                            >
+                                Sign Up
+                            </Link>
                         </div>
                     </div>
                 </div>
