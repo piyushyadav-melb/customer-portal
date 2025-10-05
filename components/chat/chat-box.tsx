@@ -841,7 +841,9 @@ const ChatBox = ({ roomId, expert }) => {
                                                             {getMessageTickStatus(message) && (
                                                                 <div className="flex items-center">
                                                                     {getMessageTickStatus(message) === 'read' ? (
-                                                                        <CheckCheck className="w-3 h-3 text-blue-400" />
+                                                                        <div className="flex items-center">
+                                                                            <CheckCheck className="w-3 h-3 text-blue-400" /> <span className="text-xs text-blue-400">SEEN</span>
+                                                                        </div>
                                                                     ) : (
                                                                         <Check className="w-3 h-3 text-gray-400" />
                                                                     )}
